@@ -126,7 +126,6 @@ public class Main extends JFrame {
         dataset.addSeries(bubbleSortSeries);
         dataset.addSeries(quickSortSeries);
 
-        // Create the chart
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Time Complexity Comparison",
                 "Input Size (n)",
@@ -138,12 +137,10 @@ public class Main extends JFrame {
                 false
         );
 
-        // Customize the plot (optional)
         XYPlot plot = chart.getXYPlot();
         plot.setRangePannable(true);
         plot.setRangeGridlinesVisible(false);
 
-        // Display the chart in a panel
         ChartPanel chartPanel = new ChartPanel(chart);
         frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
 
