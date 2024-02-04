@@ -21,11 +21,11 @@ public class Main extends JFrame {
     private final JButton generateButton;
     private final JButton sortButton;
     private final JButton quickSortButton;
-
-
     private final JButton compareAlgorithmsButton;
     private final JPanel barPanel;
     private final JSlider arraySizeSlider;
+    private final JSlider delaySlider;
+    private int delay = 400;
 
     private Timer bubbleSortTimer;
     private Timer quickSortTimer;
@@ -42,16 +42,13 @@ public class Main extends JFrame {
         quickSortButton = new JButton("Sort Bars (Quick Sort)");
         quickSortButton.addActionListener(e -> startQuickSort());
 
-
-
         compareAlgorithmsButton = new JButton("Compare");
         compareAlgorithmsButton.addActionListener(e -> compareAndDisplayAlgorithms());
-
 
         arraySizeSlider = new JSlider(JSlider.HORIZONTAL, 5, 100, arraySize);
         arraySizeSlider.setMajorTickSpacing(5);
         arraySizeSlider.setPaintTicks(true);
-        arraySizeSlider.setPaintLabels(true);
+        //arraySizeSlider.setPaintLabels(true);
         arraySizeSlider.addChangeListener(e -> {
             arraySize = arraySizeSlider.getValue();
             array = new int[arraySize];
@@ -59,6 +56,12 @@ public class Main extends JFrame {
             highlightedIndex2 = -1;
             generateRandomBars();
         });
+
+        delaySlider = new JSlider(JSlider.HORIZONTAL, 1, 500, 400);
+        delaySlider.setMajorTickSpacing(5);
+        delaySlider.setPaintTicks(true);
+        //delaySlider.setPaintLabels(true);
+        delaySlider.addChangeListener(e -> delay = delaySlider.getValue());
 
         barPanel = new JPanel() {
             @Override
@@ -75,10 +78,11 @@ public class Main extends JFrame {
         buttonPanel.add(quickSortButton);
         buttonPanel.add(compareAlgorithmsButton);
 
-        JPanel sliderPanel = new JPanel();
-        sliderPanel.setLayout(new BorderLayout());
-        sliderPanel.add(new JLabel("Number of Bars: "), BorderLayout.WEST);
-        sliderPanel.add(arraySizeSlider, BorderLayout.CENTER);
+        JPanel sliderPanel = new JPanel(new FlowLayout()); // Changed layout to FlowLayout
+        sliderPanel.add(new JLabel("Number of Bars: "));
+        sliderPanel.add(arraySizeSlider);
+        sliderPanel.add(new JLabel("Delay: "));
+        sliderPanel.add(delaySlider);
 
         add(buttonPanel, BorderLayout.NORTH);
         add(sliderPanel, BorderLayout.SOUTH);
@@ -103,16 +107,15 @@ public class Main extends JFrame {
         repaint();
     }
 
-    private void compareAndDisplayAlgorithms(){
+    private void compareAndDisplayAlgorithms() {
         compareAlgorithms();
         SwingUtilities.invokeLater(Main::compareAlgorithms);
     }
 
-    private static void compareAlgorithms(){
+    static void compareAlgorithms() {
         JFrame frame = new JFrame("Time Complexity Graph");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
-
 
         XYSeriesCollection dataset = new XYSeriesCollection();
         XYSeries bubbleSortSeries = new XYSeries("Bubble Sort (O(n^2))");
@@ -171,7 +174,7 @@ public class Main extends JFrame {
             return;
         }
 
-        bubbleSortTimer = new Timer(400, new ActionListener() {
+        bubbleSortTimer = new Timer(delay, new ActionListener() {
             private int i = 0;
             private int j = 0;
             private boolean swapped = false;
@@ -221,7 +224,7 @@ public class Main extends JFrame {
             return;
         }
 
-        quickSortTimer = new Timer(400, new ActionListener() {
+        quickSortTimer = new Timer(delay, new ActionListener() {
             private int[] stack;
             private int top = -1;
 
@@ -303,6 +306,7 @@ public class Main extends JFrame {
         quickSortButton.setEnabled(false);
         generateButton.setEnabled(false);
         arraySizeSlider.setEnabled(false);
+        delaySlider.setEnabled(false);
         compareAlgorithmsButton.setEnabled(false);
     }
 
@@ -311,6 +315,7 @@ public class Main extends JFrame {
         quickSortButton.setEnabled(true);
         generateButton.setEnabled(true);
         arraySizeSlider.setEnabled(true);
+        delaySlider.setEnabled(true);
         compareAlgorithmsButton.setEnabled(true);
         removeHighlight();
     }
