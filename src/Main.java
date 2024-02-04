@@ -14,7 +14,7 @@ public class Main extends JFrame {
     private final JButton generateButton;
     private final JButton sortButton;
     private final JButton quickSortButton;
-    private final JButton removeHighlightButton;
+
 
     private final JButton compareAlgorithmsButton;
     private final JPanel barPanel;
@@ -35,8 +35,7 @@ public class Main extends JFrame {
         quickSortButton = new JButton("Sort Bars (Quick Sort)");
         quickSortButton.addActionListener(e -> startQuickSort());
 
-        removeHighlightButton = new JButton("Remove Highlight");
-        removeHighlightButton.addActionListener(e -> removeHighlight());
+
 
         compareAlgorithmsButton = new JButton("Compare");
         compareAlgorithmsButton.addActionListener(e -> compareAlgorithms());
@@ -67,7 +66,6 @@ public class Main extends JFrame {
         buttonPanel.add(generateButton);
         buttonPanel.add(sortButton);
         buttonPanel.add(quickSortButton);
-        buttonPanel.add(removeHighlightButton);
         buttonPanel.add(compareAlgorithmsButton);
 
         JPanel sliderPanel = new JPanel();
@@ -257,7 +255,6 @@ public class Main extends JFrame {
         sortButton.setEnabled(false);
         quickSortButton.setEnabled(false);
         generateButton.setEnabled(false);
-        removeHighlightButton.setEnabled(false);
         arraySizeSlider.setEnabled(false);
         compareAlgorithmsButton.setEnabled(false);
     }
@@ -266,7 +263,6 @@ public class Main extends JFrame {
         sortButton.setEnabled(true);
         quickSortButton.setEnabled(true);
         generateButton.setEnabled(true);
-        removeHighlightButton.setEnabled(true);
         arraySizeSlider.setEnabled(true);
         compareAlgorithmsButton.setEnabled(true);
         removeHighlight();
