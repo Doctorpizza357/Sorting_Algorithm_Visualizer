@@ -3,6 +3,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 public class Main extends JFrame {
 
@@ -38,7 +45,7 @@ public class Main extends JFrame {
 
 
         compareAlgorithmsButton = new JButton("Compare");
-        compareAlgorithmsButton.addActionListener(e -> compareAlgorithms());
+        compareAlgorithmsButton.addActionListener(e -> compareAndDisplayAlgorithms());
 
 
         arraySizeSlider = new JSlider(JSlider.HORIZONTAL, 5, 100, arraySize);
@@ -96,8 +103,51 @@ public class Main extends JFrame {
         repaint();
     }
 
-    private void compareAlgorithms(){
+    private void compareAndDisplayAlgorithms(){
+        compareAlgorithms();
+        SwingUtilities.invokeLater(Main::compareAlgorithms);
+    }
 
+    private static void compareAlgorithms(){
+        JFrame frame = new JFrame("Time Complexity Graph");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        XYSeries bubbleSortSeries = new XYSeries("Bubble Sort (O(n^2))");
+        XYSeries quickSortSeries = new XYSeries("Quick Sort (O(n log n))");
+
+        for (int n = 1; n <= 100; n++) {
+            bubbleSortSeries.add(n, n * n);
+            quickSortSeries.add(n, n * Math.log(n));
+        }
+
+        dataset.addSeries(bubbleSortSeries);
+        dataset.addSeries(quickSortSeries);
+
+        // Create the chart
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Time Complexity Comparison",
+                "Input Size (n)",
+                "Time Complexity",
+                dataset,
+                PlotOrientation.HORIZONTAL,
+                true,
+                true,
+                false
+        );
+
+        // Customize the plot (optional)
+        XYPlot plot = chart.getXYPlot();
+        plot.setRangePannable(true);
+        plot.setRangeGridlinesVisible(false);
+
+        // Display the chart in a panel
+        ChartPanel chartPanel = new ChartPanel(chart);
+        frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
+
+        frame.setVisible(true);
     }
 
     private void drawBars(Graphics g) {
