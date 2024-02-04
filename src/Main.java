@@ -1,8 +1,3 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Random;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -10,6 +5,12 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
 
 public class Main extends JFrame {
 
@@ -154,18 +155,20 @@ public class Main extends JFrame {
         int maxBarHeight = barPanel.getHeight();
         int barWidth = barPanel.getWidth() / arraySize;
 
-        int highlightColorRGB = new Color(255, 0, 0).getRGB();
-
         for (int i = 0; i < arraySize; i++) {
             int barHeight = array[i] * maxBarHeight / 100;
 
+            Color barColor;
             if (i == highlightedIndex1 || i == highlightedIndex2) {
-                g.setColor(new Color(highlightColorRGB));
-                g.fillRect(i * barWidth, maxBarHeight - barHeight, barWidth, barHeight);
+                barColor = new Color(255, 0, 0);  // Red for highlighted bars
             } else {
-                g.setColor(Color.blue);
-                g.fillRect(i * barWidth, maxBarHeight - barHeight, barWidth, barHeight);
+                // Use the HSB color model to create rainbow colors
+                float hue = (float) i / arraySize;
+                barColor = Color.getHSBColor(hue, 1.0f, 1.0f);
             }
+
+            g.setColor(barColor);
+            g.fillRect(i * barWidth, maxBarHeight - barHeight, barWidth, barHeight);
         }
     }
 
