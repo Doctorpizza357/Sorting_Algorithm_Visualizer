@@ -28,6 +28,9 @@ public class Main extends JFrame {
     private final JSlider delaySlider;
     private int delay = 400;
 
+    private final JComboBox<String> visualizationOptions;
+    private String currentVisualizationMode = "Bars"; // Default visualization mode
+
     private Timer bubbleSortTimer;
     private Timer quickSortTimer;
 
@@ -46,10 +49,13 @@ public class Main extends JFrame {
         compareAlgorithmsButton = new JButton("Compare");
         compareAlgorithmsButton.addActionListener(e -> compareAndDisplayAlgorithms());
 
+        String[] visualizationModes = {"Bars", "Lines", "Circles"};
+        visualizationOptions = new JComboBox<>(visualizationModes);
+        visualizationOptions.addActionListener(e -> changeVisualizationMode());
+
         arraySizeSlider = new JSlider(JSlider.HORIZONTAL, 5, 100, arraySize);
         arraySizeSlider.setMajorTickSpacing(5);
         arraySizeSlider.setPaintTicks(true);
-        //arraySizeSlider.setPaintLabels(true);
         arraySizeSlider.addChangeListener(e -> {
             arraySize = arraySizeSlider.getValue();
             array = new int[arraySize];
@@ -61,14 +67,13 @@ public class Main extends JFrame {
         delaySlider = new JSlider(JSlider.HORIZONTAL, 1, 500, 400);
         delaySlider.setMajorTickSpacing(5);
         delaySlider.setPaintTicks(true);
-        //delaySlider.setPaintLabels(true);
         delaySlider.addChangeListener(e -> delay = delaySlider.getValue());
 
         barPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                drawBars(g);
+                drawVisualizations(g);
             }
         };
 
@@ -78,8 +83,9 @@ public class Main extends JFrame {
         buttonPanel.add(sortButton);
         buttonPanel.add(quickSortButton);
         buttonPanel.add(compareAlgorithmsButton);
+        buttonPanel.add(visualizationOptions);
 
-        JPanel sliderPanel = new JPanel(new FlowLayout()); // Changed layout to FlowLayout
+        JPanel sliderPanel = new JPanel(new FlowLayout());
         sliderPanel.add(new JLabel("Number of Bars: "));
         sliderPanel.add(arraySizeSlider);
         sliderPanel.add(new JLabel("Delay: "));
@@ -96,6 +102,21 @@ public class Main extends JFrame {
         setVisible(true);
 
         generateRandomBars();
+    }
+
+    private void changeVisualizationMode() {
+        currentVisualizationMode = (String) visualizationOptions.getSelectedItem();
+        repaint();
+    }
+
+    private void drawVisualizations(Graphics g) {
+        if ("Bars".equals(currentVisualizationMode)) {
+            drawBars(g);
+        } else if ("Lines".equals(currentVisualizationMode)) {
+            drawLines(g);
+        } else if ("Circles".equals(currentVisualizationMode)) {
+            drawCircles(g);
+        }
     }
 
     private void generateRandomBars() {
@@ -162,13 +183,78 @@ public class Main extends JFrame {
             if (i == highlightedIndex1 || i == highlightedIndex2) {
                 barColor = new Color(255, 0, 0);  // Red for highlighted bars
             } else {
-                // Use the HSB color model to create rainbow colors
                 float hue = (float) i / arraySize;
                 barColor = Color.getHSBColor(hue, 1.0f, 1.0f);
             }
 
             g.setColor(barColor);
-            g.fillRect(i * barWidth, maxBarHeight - barHeight, barWidth, barHeight);
+
+            if ("Bars".equals(currentVisualizationMode)) {
+                g.fillRect(i * barWidth, maxBarHeight - barHeight, barWidth, barHeight);
+            } else if ("Lines".equals(currentVisualizationMode)) {
+                if (i < arraySize - 1) {
+                    int nextBarHeight = array[i + 1] * maxBarHeight / 100;
+                    g.drawLine(i * barWidth, maxBarHeight - barHeight, (i + 1) * barWidth, maxBarHeight - nextBarHeight);
+                }
+            } else if ("Circles".equals(currentVisualizationMode)) {
+                int circleDiameter = barWidth / 2;
+                int circleX = i * barWidth + circleDiameter / 2;
+                int circleY = maxBarHeight - barHeight;
+
+                g.fillOval(circleX, circleY, circleDiameter, circleDiameter);
+            }
+        }
+    }
+
+    private void drawLines(Graphics g) {
+        int maxBarHeight = barPanel.getHeight();
+        int barWidth = barPanel.getWidth() / arraySize;
+
+        for (int i = 0; i < arraySize - 1; i++) {
+            int barHeight1 = array[i] * maxBarHeight / 100;
+            int barHeight2 = array[i + 1] * maxBarHeight / 100;
+
+            Color lineColor;
+            if (i == highlightedIndex1) {
+                lineColor = new Color(255, 0, 0);  // Red for highlighted lines
+            } else {
+                float hue = (float) i / arraySize;
+                lineColor = Color.getHSBColor(hue, 1.0f, 1.0f);
+            }
+
+            g.setColor(lineColor);
+
+            int x1 = i * barWidth + barWidth / 2;
+            int y1 = maxBarHeight - barHeight1;
+            int x2 = (i + 1) * barWidth + barWidth / 2;
+            int y2 = maxBarHeight - barHeight2;
+
+            g.drawLine(x1, y1, x2, y2);
+        }
+    }
+
+    private void drawCircles(Graphics g) {
+        int maxBarHeight = barPanel.getHeight();
+        int barWidth = barPanel.getWidth() / arraySize;
+
+        for (int i = 0; i < arraySize; i++) {
+            int barHeight = array[i] * maxBarHeight / 100;
+
+            Color circleColor;
+            if (i == highlightedIndex1 || i == highlightedIndex2) {
+                circleColor = new Color(255, 0, 0);  // Red for highlighted circles
+            } else {
+                float hue = (float) i / arraySize;
+                circleColor = Color.getHSBColor(hue, 1.0f, 1.0f);
+            }
+
+            g.setColor(circleColor);
+
+            int circleDiameter = barWidth / 2;
+            int circleX = i * barWidth + circleDiameter / 2;
+            int circleY = maxBarHeight - barHeight;
+
+            g.fillOval(circleX, circleY, circleDiameter, circleDiameter);
         }
     }
 
