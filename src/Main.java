@@ -165,6 +165,7 @@ public class Main extends JFrame {
         XYPlot plot = chart.getXYPlot();
         plot.setRangePannable(true);
         plot.setRangeGridlinesVisible(false);
+        plot.setRangeGridlinesVisible(true);
 
         ChartPanel chartPanel = new ChartPanel(chart);
         frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
