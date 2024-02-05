@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -26,20 +27,18 @@ public class Main extends JFrame {
     private int highlightedIndex2 = -1;
 
     // Buttons and UI components
-    private final JButton generateButton;
-    private final JButton sortButton;
-    private final JButton quickSortButton;
-    private final JButton compareAlgorithmsButton;
+    private final JButton startButton;
+    private final JComboBox<String> sortingAlgorithmOptions;
     private final JPanel barPanel;
     private final JSlider arraySizeSlider;
     private final JSlider delaySlider;
     private int delay = 400;
+
     private final JComboBox<String> visualizationOptions;
     private String currentVisualizationMode = "Bars"; // Default visualization mode
 
     // Timers for sorting algorithms
-    private Timer bubbleSortTimer;
-    private Timer quickSortTimer;
+    private Timer sortTimer;
 
     /**
      * Constructor for the Main class, initializes the UI components.
@@ -50,20 +49,16 @@ public class Main extends JFrame {
         array = new int[arraySize];
 
         // Initialize buttons and UI components
-        generateButton = new JButton("Generate Bars");
-        generateButton.addActionListener(e -> generateRandomBars());
+        startButton = new JButton("Start Sorting");
+        startButton.addActionListener(e -> startSorting());
 
-        sortButton = new JButton("Sort Bars (Bubble Sort)");
-        sortButton.addActionListener(e -> startBubbleSort());
+        JButton compareButton = new JButton("Compare");
+        compareButton.addActionListener(e -> compareAndDisplayAlgorithms());
 
-        quickSortButton = new JButton("Sort Bars (Quick Sort)");
-        quickSortButton.addActionListener(e -> startQuickSort());
+        String[] sortingAlgorithms = {"Bubble Sort", "Quick Sort"};
+        sortingAlgorithmOptions = new JComboBox<>(sortingAlgorithms);
 
-        compareAlgorithmsButton = new JButton("Compare");
-        compareAlgorithmsButton.addActionListener(e -> compareAndDisplayAlgorithms());
-
-        String[] visualizationModes = {"Bars", "Lines", "Circles"};
-        visualizationOptions = new JComboBox<>(visualizationModes);
+        visualizationOptions = new JComboBox<>(new String[]{"Bars", "Lines", "Circles"});
         visualizationOptions.addActionListener(e -> changeVisualizationMode());
 
         arraySizeSlider = new JSlider(JSlider.HORIZONTAL, 5, 100, arraySize);
@@ -93,11 +88,10 @@ public class Main extends JFrame {
         // Set up the layout and add components to the frame
         setLayout(new BorderLayout());
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.add(generateButton);
-        buttonPanel.add(sortButton);
-        buttonPanel.add(quickSortButton);
-        buttonPanel.add(compareAlgorithmsButton);
+        buttonPanel.add(startButton);
+        buttonPanel.add(sortingAlgorithmOptions);
         buttonPanel.add(visualizationOptions);
+        buttonPanel.add(compareButton);
 
         JPanel sliderPanel = new JPanel(new FlowLayout());
         sliderPanel.add(new JLabel("Number of Bars: "));
@@ -142,75 +136,6 @@ public class Main extends JFrame {
         } else if ("Circles".equals(currentVisualizationMode)) {
             drawCircles(g);
         }
-    }
-
-    /**
-     * Generates random values for the array to be visualized as bars.
-     * @date 2/5/24
-     * @author Tomas Bentolila
-     */
-    private void generateRandomBars() {
-        Random random = new Random();
-        for (int i = 0; i < arraySize; i++) {
-            array[i] = random.nextInt(100) + 1;
-        }
-        highlightedIndex1 = -1;
-        highlightedIndex2 = -1;
-        repaint();
-    }
-
-    /**
-     * Compares and displays time complexity graphs of sorting algorithms using JFreeChart.
-     * @date 2/5/24
-     * @author Tomas Bentolila
-     */
-    private void compareAndDisplayAlgorithms() {
-        SwingUtilities.invokeLater(Main::compareAlgorithms);
-    }
-
-    /**
-     * Static method to create and display a time complexity graph using JFreeChart.
-     * @date 2/5/24
-     * @author Tomas Bentolila
-     */
-    static void compareAlgorithms() {
-        JFrame frame = new JFrame("Time Complexity Graph");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        XYSeries bubbleSortSeries = new XYSeries("Bubble Sort (O(n^2))");
-        XYSeries quickSortSeries = new XYSeries("Quick Sort (O(n log n))");
-
-        for (int n = 1; n <= 100; n++) {
-            bubbleSortSeries.add(n, n * n);
-            quickSortSeries.add(n, n * Math.log(n));
-        }
-
-        dataset.addSeries(bubbleSortSeries);
-        dataset.addSeries(quickSortSeries);
-
-        JFreeChart chart = ChartFactory.createXYLineChart(
-                "Time Complexity Comparison",
-                "Input Size (n)",
-                "Time Complexity",
-                dataset,
-                PlotOrientation.HORIZONTAL,
-                true,
-                true,
-                false
-        );
-
-        XYPlot plot = chart.getXYPlot();
-        plot.setRangePannable(true);
-        plot.setRangeGridlinesVisible(false);
-        plot.setRangeGridlinesVisible(true);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        ChartPanel chartPanel = new ChartPanel(chart);
-        frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
-
-        frame.setVisible(true);
     }
 
     /**
@@ -315,16 +240,49 @@ public class Main extends JFrame {
     }
 
     /**
+     * Generates random values for the array to be visualized as bars.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
+    private void generateRandomBars() {
+        Random random = new Random();
+        for (int i = 0; i < arraySize; i++) {
+            array[i] = random.nextInt(100) + 1;
+        }
+        highlightedIndex1 = -1;
+        highlightedIndex2 = -1;
+        repaint();
+    }
+
+    /**
+     * Initiates the sorting algorithm based on the selected option.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
+    private void startSorting() {
+        if (sortTimer != null && sortTimer.isRunning()) {
+            return;
+        }
+
+        String selectedAlgorithm = (String) sortingAlgorithmOptions.getSelectedItem();
+
+        switch (Objects.requireNonNull(selectedAlgorithm)) {
+            case "Bubble Sort" -> startBubbleSort();
+            case "Quick Sort" -> startQuickSort();
+        }
+    }
+
+    /**
      * Initiates the Bubble Sort algorithm.
      * @date 2/5/24
      * @author Tomas Bentolila
      */
     private void startBubbleSort() {
-        if (bubbleSortTimer != null && bubbleSortTimer.isRunning()) {
+        if (sortTimer != null && sortTimer.isRunning()) {
             return;
         }
 
-        bubbleSortTimer = new Timer(delay, new ActionListener() {
+        sortTimer = new Timer(delay, new ActionListener() {
             private int i = 0;
             private int j = 0;
             private boolean swapped = false;
@@ -359,13 +317,13 @@ public class Main extends JFrame {
                 } else {
                     highlightedIndex1 = -1;
                     highlightedIndex2 = -1;
-                    bubbleSortTimer.stop();
+                    sortTimer.stop();
                     enableButtons();
                 }
             }
         });
 
-        bubbleSortTimer.start();
+        sortTimer.start();
         disableButtons();
     }
 
@@ -375,11 +333,11 @@ public class Main extends JFrame {
      * @author Tomas Bentolila
      */
     private void startQuickSort() {
-        if (quickSortTimer != null && quickSortTimer.isRunning()) {
+        if (sortTimer != null && sortTimer.isRunning()) {
             return;
         }
 
-        quickSortTimer = new Timer(delay, new ActionListener() {
+        sortTimer = new Timer(delay, new ActionListener() {
             private int[] stack;
             private int top = -1;
 
@@ -420,7 +378,7 @@ public class Main extends JFrame {
                     repaint();
                 } else {
                     highlightedIndex1 = -1;
-                    quickSortTimer.stop();
+                    sortTimer.stop();
                     enableButtons();
                 }
             }
@@ -446,8 +404,62 @@ public class Main extends JFrame {
             }
         });
 
-        quickSortTimer.start();
+        sortTimer.start();
         disableButtons();
+    }
+
+    /**
+     * Compares and displays time complexity graphs of sorting algorithms using JFreeChart.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
+    private void compareAndDisplayAlgorithms() {
+        SwingUtilities.invokeLater(Main::compareAlgorithms);
+    }
+
+    /**
+     * Static method to create and display a time complexity graph using JFreeChart.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
+    static void compareAlgorithms() {
+        JFrame frame = new JFrame("Time Complexity Graph");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        XYSeries bubbleSortSeries = new XYSeries("Bubble Sort (O(n^2))");
+        XYSeries quickSortSeries = new XYSeries("Quick Sort (O(n log n))");
+
+        for (int n = 1; n <= 100; n++) {
+            bubbleSortSeries.add(n, n * n);
+            quickSortSeries.add(n, n * Math.log(n));
+        }
+
+        dataset.addSeries(bubbleSortSeries);
+        dataset.addSeries(quickSortSeries);
+
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Time Complexity Comparison",
+                "Input Size (n)",
+                "Time Complexity",
+                dataset,
+                PlotOrientation.HORIZONTAL,
+                true,
+                true,
+                false
+        );
+
+        XYPlot plot = chart.getXYPlot();
+        plot.setRangePannable(true);
+        plot.setRangeGridlinesVisible(false);
+        plot.setRangeGridlinesVisible(true);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
+
+        frame.setVisible(true);
     }
 
     /**
@@ -467,12 +479,11 @@ public class Main extends JFrame {
      * @author Tomas Bentolila
      */
     private void disableButtons() {
-        sortButton.setEnabled(false);
-        quickSortButton.setEnabled(false);
-        generateButton.setEnabled(false);
+        startButton.setEnabled(false);
+        sortingAlgorithmOptions.setEnabled(false);
+        visualizationOptions.setEnabled(false);
         arraySizeSlider.setEnabled(false);
         delaySlider.setEnabled(false);
-        compareAlgorithmsButton.setEnabled(false);
     }
 
     /**
@@ -481,12 +492,11 @@ public class Main extends JFrame {
      * @author Tomas Bentolila
      */
     private void enableButtons() {
-        sortButton.setEnabled(true);
-        quickSortButton.setEnabled(true);
-        generateButton.setEnabled(true);
+        startButton.setEnabled(true);
+        sortingAlgorithmOptions.setEnabled(true);
+        visualizationOptions.setEnabled(true);
         arraySizeSlider.setEnabled(true);
         delaySlider.setEnabled(true);
-        compareAlgorithmsButton.setEnabled(true);
         removeHighlight();
     }
 
