@@ -12,13 +12,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
+/**
+ * This class represents a sorting visualizer application using Swing.
+ * @date 2/5/24
+ * @author Tomas Bentolila
+ */
 public class Main extends JFrame {
 
+    // Data and state variables
     private int arraySize = 10;
     private int[] array;
     private int highlightedIndex1 = -1;
     private int highlightedIndex2 = -1;
 
+    // Buttons and UI components
     private final JButton generateButton;
     private final JButton sortButton;
     private final JButton quickSortButton;
@@ -27,16 +34,22 @@ public class Main extends JFrame {
     private final JSlider arraySizeSlider;
     private final JSlider delaySlider;
     private int delay = 400;
-
     private final JComboBox<String> visualizationOptions;
     private String currentVisualizationMode = "Bars"; // Default visualization mode
 
+    // Timers for sorting algorithms
     private Timer bubbleSortTimer;
     private Timer quickSortTimer;
 
+    /**
+     * Constructor for the Main class, initializes the UI components.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     public Main() {
         array = new int[arraySize];
 
+        // Initialize buttons and UI components
         generateButton = new JButton("Generate Bars");
         generateButton.addActionListener(e -> generateRandomBars());
 
@@ -77,6 +90,7 @@ public class Main extends JFrame {
             }
         };
 
+        // Set up the layout and add components to the frame
         setLayout(new BorderLayout());
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(generateButton);
@@ -95,6 +109,7 @@ public class Main extends JFrame {
         add(sliderPanel, BorderLayout.SOUTH);
         add(barPanel, BorderLayout.CENTER);
 
+        // Set up frame properties
         setTitle("Sorting Visualizer");
         setSize(650, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -104,11 +119,21 @@ public class Main extends JFrame {
         generateRandomBars();
     }
 
+    /**
+     * Changes the current visualization mode based on the selected option in the combo box.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void changeVisualizationMode() {
         currentVisualizationMode = (String) visualizationOptions.getSelectedItem();
         repaint();
     }
 
+    /**
+     * Draws the visualizations based on the selected visualization mode.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void drawVisualizations(Graphics g) {
         if ("Bars".equals(currentVisualizationMode)) {
             drawBars(g);
@@ -119,6 +144,11 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Generates random values for the array to be visualized as bars.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void generateRandomBars() {
         Random random = new Random();
         for (int i = 0; i < arraySize; i++) {
@@ -129,10 +159,20 @@ public class Main extends JFrame {
         repaint();
     }
 
+    /**
+     * Compares and displays time complexity graphs of sorting algorithms using JFreeChart.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void compareAndDisplayAlgorithms() {
         SwingUtilities.invokeLater(Main::compareAlgorithms);
     }
 
+    /**
+     * Static method to create and display a time complexity graph using JFreeChart.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     static void compareAlgorithms() {
         JFrame frame = new JFrame("Time Complexity Graph");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -165,6 +205,7 @@ public class Main extends JFrame {
         plot.setRangePannable(true);
         plot.setRangeGridlinesVisible(false);
         plot.setRangeGridlinesVisible(true);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         ChartPanel chartPanel = new ChartPanel(chart);
         frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
@@ -172,6 +213,11 @@ public class Main extends JFrame {
         frame.setVisible(true);
     }
 
+    /**
+     * Draws bars based on the current state of the array and highlighted indices.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void drawBars(Graphics g) {
         int maxBarHeight = barPanel.getHeight();
         int barWidth = barPanel.getWidth() / arraySize;
@@ -206,6 +252,11 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Draws lines connecting the bars based on the current state of the array and highlighted index.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void drawLines(Graphics g) {
         int maxBarHeight = barPanel.getHeight();
         int barWidth = barPanel.getWidth() / arraySize;
@@ -233,6 +284,11 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Draws circles representing the bars based on the current state of the array and highlighted indices.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void drawCircles(Graphics g) {
         int maxBarHeight = barPanel.getHeight();
         int barWidth = barPanel.getWidth() / arraySize;
@@ -258,6 +314,11 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Initiates the Bubble Sort algorithm.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void startBubbleSort() {
         if (bubbleSortTimer != null && bubbleSortTimer.isRunning()) {
             return;
@@ -308,6 +369,11 @@ public class Main extends JFrame {
         disableButtons();
     }
 
+    /**
+     * Initiates the Quick Sort algorithm.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void startQuickSort() {
         if (quickSortTimer != null && quickSortTimer.isRunning()) {
             return;
@@ -384,12 +450,22 @@ public class Main extends JFrame {
         disableButtons();
     }
 
+    /**
+     * Removes highlighting of bars, lines, or circles.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void removeHighlight() {
         highlightedIndex1 = -1;
         highlightedIndex2 = -1;
         repaint();
     }
 
+    /**
+     * Disables UI buttons during sorting.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void disableButtons() {
         sortButton.setEnabled(false);
         quickSortButton.setEnabled(false);
@@ -399,6 +475,11 @@ public class Main extends JFrame {
         compareAlgorithmsButton.setEnabled(false);
     }
 
+    /**
+     * Enables UI buttons after sorting completion.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     private void enableButtons() {
         sortButton.setEnabled(true);
         quickSortButton.setEnabled(true);
@@ -409,6 +490,11 @@ public class Main extends JFrame {
         removeHighlight();
     }
 
+    /**
+     * Main method to launch the application.
+     * @date 2/5/24
+     * @author Tomas Bentolila
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::new);
     }
