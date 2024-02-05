@@ -130,7 +130,6 @@ public class Main extends JFrame {
     }
 
     private void compareAndDisplayAlgorithms() {
-        compareAlgorithms();
         SwingUtilities.invokeLater(Main::compareAlgorithms);
     }
 
